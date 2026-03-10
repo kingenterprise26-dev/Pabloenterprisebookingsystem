@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pablo Enterprise | Premium Event Booking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        input, select, textarea {
+            transition: all 0.2s ease-in-out;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            ring: 2px;
+            ring-color: var(--primary);
+            border-color: var(--primary);
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="showView('home')">
+                <span class="text-2xl font-black italic tracking-tighter text-indigo-600 uppercase">PABLO ENT.</span>
+            </div>
+            <div id="nav-links" class="flex gap-6">
+                <button onclick="showView('home')" class="text-sm font-bold text-slate-600 hover:text-indigo-600 transition">Home</button>
+                <button onclick="handleAdminNav()" class="text-sm font-bold text-slate-600 hover:text-indigo-600 transition">Admin</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto py-12 px-6">
+
+        <!-- VIEW: HOME (Check Availability) -->
+        <section id="view-home" class="view-section active text-center">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-2">Pablo Enterprise</h1>
+            <h3 class="text-slate-500 font-medium text-lg mb-12 uppercase tracking-widest">Check Event Date Availability</h3>
+            
+            <div class="glass-card p-8 md:p-12 rounded-[2.5rem] max-w-md mx-auto">
+                <div class="text-left mb-6">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-1">Select Your Event Date</label>
+                    <input type="date" id="eventDate" class="w-full p-4 rounded-xl border border-slate-200 text-lg font-semibold outline-none">
+                </div>
+                
+                <button onclick="checkDate()" class="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold text-lg hover:bg-indigo-700 transition shadow-lg shadow-indigo-100 active:scale-95">
+                    Check Availability
+                </button>
+
+                <p id="status" class="mt-6 font-bold text-sm min-h-[1.25rem] transition-colors"></p>
+
+                <button id="bookBtn" style="display:none;" onclick="goBooking()" class="w-full mt-4 py-4 bg-slate-900 text-white rounded-xl font-bold text-lg hover:bg-black transition flex items-center justify-center gap-2">
+                    Book This Date <i class="fas fa-arrow-right text-xs"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW: BOOKING FORM -->
+        <section id="view-booking" class="view-section">
+            <div class="glass-card rounded-[2.5rem] overflow-hidden max-w-2xl mx-auto">
+                <div class="bg-indigo-600 p-8 text-white text-center relative">
+                    <h2 class="text-2xl font-black uppercase tracking-tight">Complete Your Booking</h2>
+                    <p id="booking-date-label" class="text-indigo-100 text-sm font-bold mt-1 uppercase tracking-widest"></p>
+                </div>
+
+                <form id="bookingForm" class="p-8 space-y-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black uppercase text-slate-400 ml-1">Full Name</label>
+                        <input id="name" placeholder="Full Name" required class="w-full p-4 rounded-xl border border-slate-200 outline-none">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black uppercase text-slate-400 ml-1">Email</label>
+                            <input id="email" type="email" placeholder="Email" required class="w-full p-4 rounded-xl border border-slate-200 outline-none">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black uppercase text-slate-400 ml-1">Phone Number</label>
+                            <input id="phone" placeholder="Phone Number" required class="w-full p-4 rounded-xl border border-slate-200 outline-none">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black uppercase text-slate-400 ml-1">Event Location</label>
+                        <input id="location" placeholder="Event Location" required class="w-full p-4 rounded-xl border border-slate-200 outline-none">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black uppercase text-slate-400 ml-1">Service Package</label>
+                        <select id="package" class="w-full p-4 rounded-xl border border-slate-200 outline-none bg-white">
+                            <option>Basic Package</option>
+                            <option>Standard Package</option>
+                            <option>Premium Package</option>
+                        </select>
+                    </div>
+
+                    <div class="pt-6 flex flex-col gap-3">
+                        <button type="submit" class="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold text-lg hover:bg-indigo-700 transition shadow-lg">
+                            Submit Booking
+                        </button>
+                        <button type="button" onclick="showView('home')" class="w-full text-xs font-bold text-slate-400 hover:text-slate-600">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- VIEW: ADMIN LOGIN -->
+        <section id="view-admin-login" class="view-section">
+            <div class="glass-card p-10 rounded-[2.5rem] max-sm mx-auto text-center">
+                <h2 class="text-2xl font-black uppercase italic text-indigo-600 mb-2">Admin Login</h2>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-8">Secure Management Portal</p>
+                
+                <div class="space-y-4">
+                    <input id="adminId" placeholder="Admin ID" class="w-full p-4 rounded-xl border border-slate-200 outline-none">
+                    <input id="adminPassword" type="password" placeholder="Password" class="w-full p-4 rounded-xl border border-slate-200 outline-none">
+                    <button onclick="adminLogin()" class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-black transition">
+                        Login
+                    </button>
+                    <p id="loginStatus" class="text-red-500 text-xs font-bold"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: ADMIN DASHBOARD -->
+        <section id="view-admin-dashboard" class="view-section">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-black uppercase italic">Admin Dashboard</h2>
+                <button onclick="logout()" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-xs font-black uppercase hover:bg-red-100 transition">
+                    Logout
+                </button>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 border-b border-slate-100">
+                            <tr>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase">Customer</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase">Date</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase">Package</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase">Status</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingTableBody" class="divide-y divide-slate-50"></tbody>
+                    </table>
+                </div>
+                <div id="emptyMsg" class="p-20 text-center text-slate-300 font-bold uppercase tracking-widest hidden text-sm">
+                    No Bookings Registered
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- AI REPLY MODAL -->
+    <div id="aiReplyModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[101] hidden flex items-center justify-center p-6">
+        <div class="bg-white p-8 rounded-[2.5rem] max-w-xl w-full">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="text-xs font-black uppercase text-indigo-600 tracking-tighter">✨ Gemini AI Draft Reply</span>
+            </div>
+            <textarea id="aiDraftContent" rows="10" class="w-full p-4 rounded-xl border border-slate-200 text-sm mb-4 bg-slate-50 font-medium"></textarea>
+            <div class="flex gap-3">
+                <button onclick="copyToClipboard()" class="flex-1 py-3 bg-slate-900 text-white rounded-xl font-bold text-xs hover:bg-black transition uppercase">Copy Text</button>
+                <button onclick="closeAiModal()" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs hover:bg-slate-200 transition uppercase">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-6">
+        <div class="bg-white p-10 rounded-[2.5rem] max-w-sm w-full text-center">
+            <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">
+                <i class="fas fa-check"></i>
+            </div>
+            <h3 class="text-2xl font-black text-slate-900 mb-2">BOOKING SENT!</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-8">Your request for <span id="confirmedDate" class="font-bold text-indigo-600"></span> has been submitted for review.</p>
+            <button onclick="closeModal()" class="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition">
+                Return Home
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = ""; // Set by runtime
+        let bookings = JSON.parse(localStorage.getItem("bookings")) || [];
+        let selectedDate = "";
+
+        // --- GEMINI API HELPER ---
+        async function callGemini(prompt) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            let retries = 0;
+            const delays = [1000, 2000, 4000, 8000, 16000];
+
+            while (retries < 5) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }],
+                            systemInstruction: { parts: [{ text: "You are an expert event planner for Pablo Enterprise. Keep responses concise, professional, and exciting." }] }
+                        })
+                    });
+                    const data = await response.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated.";
+                } catch (e) {
+                    retries++;
+                    if (retries === 5) throw e;
+                    await new Promise(r => setTimeout(r, delays[retries - 1]));
+                }
+            }
+        }
+
+        // --- ADMIN GEMINI FEATURE: DRAFT REPLY ---
+        async function draftAiReply(id) {
+            const booking = bookings.find(b => b.id === id);
+            if (!booking) return;
+
+            const modal = document.getElementById("aiReplyModal");
+            const content = document.getElementById("aiDraftContent");
+            modal.classList.remove("hidden");
+            content.value = "✨ Gemini is drafting a professional reply...";
+
+            const prompt = `Write a professional email response to ${booking.name} who booked a ${booking.package} for ${booking.date} at ${booking.location}. The status is ${booking.status}. If status is Pending Payment, remind them to pay. If Confirmed, express excitement. Sign as 'The Pablo Enterprise Team'.`;
+
+            try {
+                const draft = await callGemini(prompt);
+                content.value = draft;
+            } catch (err) {
+                content.value = "Error generating draft. Please try again.";
+            }
+        }
+
+        function closeAiModal() { document.getElementById("aiReplyModal").classList.add("hidden"); }
+        function copyToClipboard() {
+            const text = document.getElementById("aiDraftContent").value;
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            alert("Copied to clipboard!");
+        }
+
+        // --- NAVIGATION LOGIC ---
+        function showView(viewId) {
+            document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
+            if(viewId === 'admin-dashboard') loadAdmin();
+            window.scrollTo(0,0);
+        }
+
+        function handleAdminNav() {
+            localStorage.getItem("adminLoggedIn") === "true" ? showView('admin-dashboard') : showView('admin-login');
+        }
+
+        // --- HOME: AVAILABILITY ---
+        function checkDate() {
+            let date = document.getElementById("eventDate").value;
+            let statusEl = document.getElementById("status");
+            let bookBtn = document.getElementById("bookBtn");
+            if (!date) return;
+            const today = new Date().toISOString().split('T')[0];
+            if (date < today) {
+                statusEl.innerText = "Please select a future date";
+                statusEl.className = "mt-6 font-bold text-sm min-h-[1.25rem] text-amber-500";
+                bookBtn.style.display = "none";
+                return;
+            }
+            let exist = bookings.find(b => b.date === date);
+            if(exist) {
+                statusEl.innerText = "This date is already booked";
+                statusEl.className = "mt-6 font-bold text-sm min-h-[1.25rem] text-red-500";
+                bookBtn.style.display = "none";
+            } else {
+                statusEl.innerText = "Date available";
+                statusEl.className = "mt-6 font-bold text-sm min-h-[1.25rem] text-emerald-500";
+                bookBtn.style.display = "block";
+                selectedDate = date;
+            }
+        }
+
+        function goBooking() {
+            document.getElementById('booking-date-label').innerText = "DATE: " + selectedDate;
+            showView('booking');
+        }
+
+        // --- BOOKING: FORM SUBMISSION ---
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            let booking = {
+                id: Date.now(),
+                name: document.getElementById("name").value,
+                email: document.getElementById("email").value,
+                phone: document.getElementById("phone").value,
+                location: document.getElementById("location").value,
+                package: document.getElementById("package").value,
+                date: selectedDate,
+                status: "Pending Payment"
+            };
+            bookings.push(booking);
+            localStorage.setItem("bookings", JSON.stringify(bookings));
+            document.getElementById('confirmedDate').innerText = selectedDate;
+            document.getElementById('successModal').classList.remove('hidden');
+            this.reset();
+        });
+
+        function closeModal() {
+            document.getElementById('successModal').classList.add('hidden');
+            document.getElementById('status').innerText = "";
+            document.getElementById('bookBtn').style.display = "none";
+            document.getElementById('eventDate').value = "";
+            showView('home');
+        }
+
+        // --- ADMIN: AUTH ---
+        function adminLogin() {
+            let id = document.getElementById("adminId").value;
+            let pass = document.getElementById("adminPassword").value;
+            if(id === "admin" && pass === "admin321123") {
+                localStorage.setItem("adminLoggedIn", "true");
+                document.getElementById("loginStatus").innerText = "";
+                showView('admin-dashboard');
+            } else {
+                document.getElementById("loginStatus").innerText = "Invalid ID or Password";
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("adminLoggedIn");
+            showView('home');
+        }
+
+        // --- ADMIN: DASHBOARD ---
+        function loadAdmin() {
+            let tbody = document.getElementById("bookingTableBody");
+            let emptyMsg = document.getElementById("emptyMsg");
+            tbody.innerHTML = "";
+            if(bookings.length === 0) {
+                emptyMsg.classList.remove('hidden');
+                return;
+            }
+            emptyMsg.classList.add('hidden');
+            let sorted = [...bookings].sort((a,b) => new Date(a.date) - new Date(b.date));
+            sorted.forEach((b) => {
+                let row = tbody.insertRow();
+                row.className = "hover:bg-slate-50 transition-colors";
+                let cellName = row.insertCell(0);
+                cellName.className = "px-6 py-4";
+                cellName.innerHTML = `<div class="font-bold text-slate-800">${b.name}</div><div class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter mt-1">${b.phone}</div>`;
+                let cellDate = row.insertCell(1);
+                cellDate.className = "px-6 py-4 text-xs font-black text-indigo-600";
+                cellDate.innerText = b.date;
+                let cellPkg = row.insertCell(2);
+                cellPkg.className = "px-6 py-4";
+                cellPkg.innerHTML = `<div class="text-[10px] font-black text-slate-700 uppercase tracking-wide">${b.package}</div><div class="text-[10px] text-slate-400 italic">${b.location}</div>`;
+                let cellStatus = row.insertCell(3);
+                cellStatus.className = "px-6 py-4";
+                let statusColor = b.status === "Confirmed" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700";
+                cellStatus.innerHTML = `<span class="px-2 py-1 rounded-full text-[9px] font-black uppercase ${statusColor}">${b.status}</span>`;
+                let cellAction = row.insertCell(4);
+                cellAction.className = "px-6 py-4 text-right flex items-center justify-end gap-3";
+                
+                // AI Draft Button
+                let aiBtn = document.createElement("button");
+                aiBtn.innerHTML = `✨`;
+                aiBtn.title = "Draft AI Reply";
+                aiBtn.className = "text-indigo-500 hover:text-indigo-700 text-lg transition p-1";
+                aiBtn.onclick = () => draftAiReply(b.id);
+                cellAction.appendChild(aiBtn);
+
+                if(b.status !== "Confirmed") {
+                    let confirmBtn = document.createElement("button");
+                    confirmBtn.innerHTML = `<i class="fas fa-check-circle"></i>`;
+                    confirmBtn.className = "text-emerald-500 hover:text-emerald-700 p-1";
+                    confirmBtn.onclick = () => confirmBooking(b.id);
+                    cellAction.appendChild(confirmBtn);
+                }
+                let delBtn = document.createElement("button");
+                delBtn.innerHTML = `<i class="fas fa-trash-alt"></i>`;
+                delBtn.className = "text-slate-200 hover:text-red-500 p-1";
+                delBtn.onclick = () => deleteBooking(b.id);
+                cellAction.appendChild(delBtn);
+            });
+        }
+
+        function confirmBooking(id) {
+            let index = bookings.findIndex(b => b.id === id);
+            if(index !== -1) {
+                bookings[index].status = "Confirmed";
+                localStorage.setItem("bookings", JSON.stringify(bookings));
+                loadAdmin();
+            }
+        }
+
+        function deleteBooking(id) {
+            if(confirm("Permanently delete this booking?")) {
+                bookings = bookings.filter(b => b.id !== id);
+                localStorage.setItem("bookings", JSON.stringify(bookings));
+                loadAdmin();
+            }
+        }
+
+        window.onload = () => {
+            let today = new Date().toISOString().split('T')[0];
+            document.getElementById('eventDate').setAttribute('min', today);
+        }
+    </script>
+</body>
+</html>
